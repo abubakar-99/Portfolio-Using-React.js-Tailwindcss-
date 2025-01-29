@@ -1,71 +1,57 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
-import { useState } from "react"
-import "./App.css"
-import Header from "./components/Header"
+import { useState, useEffect } from "react"
+import { ArrowUp } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import Navbar from "./components/Navbar"
 import Hero from "./components/Hero"
-import Features from "./components/Features"
-import HowItWorks from "./components/HowItWorks"
-import Testimonials from "./components/Testimonials"
-import Calculator from "./components/Calculator"
+import About from "./components/About"
+import Services from "./components/Services"
+import Projects from "./components/Projects"
+import Contact from "./components/Contact"
 import Footer from "./components/Footer"
-import Login from "./components/Login"
-import Signup from "./components/Signup"
-import Dashboard from "./components/Dashboard"
-import AddNewList from "./components/AddNewList"
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [darkMode, setDarkMode] = useState(false)
+  const [showScrollTop, setShowScrollTop] = useState(false)
 
-  // Handle login logic
-  const handleLogin = (email, password) => {
-    console.log("Attempting login with:", email, password) // Debugging log
-    if (email === "test@nextpak.org" && password === "123456") {
-      alert("Login successful")
-      setIsAuthenticated(true) // Set authentication to true
-      return true
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400)
     }
-    alert("Invalid credentials")
-    return false
-  }
 
-  // Handle logout logic
-  const handleLogout = () => {
-    setIsAuthenticated(false) // Set authentication to false on logout
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   return (
-    <Router>
-      <div className="min-h-screen bg-mint-50">
-        {/* Always render Header */}
-        <Header />
+    <div className={`min-h-screen ${darkMode ? "dark" : ""}`}>
+      <div className="bg-emerald-50 dark:bg-gray-900 dark:text-white transition-colors duration-300">
+        <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
+        <Hero />
+        <About />
+        <Services />
+        <Projects />
+        <Contact />
+        <Footer />
 
-        {/* Routes for navigation */}
-        <Routes>
-          <Route
-            path="/login"
-            element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to="/dashboard" replace />}
-          />
-          <Route path="/signup" element={!isAuthenticated ? <Signup /> : <Navigate to="/dashboard" replace />} />
-          <Route
-            path="/dashboard"
-            element={isAuthenticated ? <Dashboard onLogout={handleLogout} /> : <Navigate to="/login" replace />}
-          />
-          <Route
-            path="/"
-            element={
-              <>
-                <Hero />
-                <Features />
-                <HowItWorks />
-                <Testimonials />
-                <Calculator />
-                <Footer />
-              </>
-            }
-          />
-        </Routes>
+        <AnimatePresence>
+          {showScrollTop && (
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              onClick={scrollToTop}
+              className="fixed bottom-8 right-8 p-3 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition-colors z-50"
+            >
+              <ArrowUp size={24} />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
-    </Router>
+    </div>
   )
 }
 
